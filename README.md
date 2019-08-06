@@ -32,6 +32,11 @@ pip install -r requirements.txt
 ```
 
 
+### Database
+
+The bot will connect to a simple database (`sqlite`) to exchange requests
+
+
 
 ### TelegramBot API
 
