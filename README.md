@@ -34,7 +34,9 @@ pip install -r requirements.txt
 
 ### Database
 
-The bot will connect to a simple database (`sqlite`) to exchange requests
+The bot will connect to a simple database (`sqlite`) to exchange requests.
+
+Documentation about how to connect Python application with simple database, can be found [here](https://medium.com/@DrGabrielA81/python-how-connect-to-and-manage-a-database-68b113a5ca62).
 
 
 
