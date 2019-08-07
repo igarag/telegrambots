@@ -1,0 +1,17 @@
+# File to create a service.
+# It copy to "/lib/systemd/system/"
+# After that, its running typing: sudo systemctl daemon-reload
+# sudo systemctl enable jderoBot.service —> Running at booting
+# sudo systemctl start  jderoBot.service —> Running without reboot PC
+
+[Unit]
+Description=telegram_vocabulary_bot
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/home/pi/telegram_vocabulary_bot/telegram-bot/venv-pi/bin/python  /home/pi/telegram_vocabulary_bot/telegram-bot/jderoBot.py
+
+
+[Install]
+WantedBy=multi-user.target

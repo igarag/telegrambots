@@ -5,14 +5,19 @@ import telebot, tempfile, subprocess
 from telebot import types
 import time
 import requests
-from websocket import create_connection
 
 
-bot = telebot.TeleBot('654631218:AAEjR4zk9JJNKPPxPD7vXAxJCyUFPM-UPfc')
 
-HELP = '\n/help - Guía para utilizar el bot.   \
-        \n/services - Lista de servicios activos\
-        \n/hello - Saludo del Bot'
+with open('./token.txt') as token_file:
+    my_token = token_file.read()
+token_file.close()
+
+bot = telebot.TeleBot(my_token)
+
+HELP = '\n/help - Guide to know how to use the bot   \
+        \n/new_word - Add a new word to your database.\
+        \n/list - Return all words of your list.\
+        \n/hello - Saludo del Bot.'
 
 
 # Definimos que cuando pongamos la palabra grupo lo vincule con el Id del grupo donde 
@@ -20,24 +25,9 @@ HELP = '\n/help - Guía para utilizar el bot.   \
 GROUP = "ADMIN"
 
 
-services = [
-        #"https://academy2.jderobot.org",
-        "https://kids.jderobot.org",
-        "https://makers.jderobot.org",
-        "https://academy.jderobot.org",
-        "https://developers.jderobot.org",
-        "https://gitlab.jderobot.org",
-        "https://jderobot.org/Main_Page",
-    ]
 
-hosts = [
-        "theta03.aulas.gsyc.urjc.es",
-        "theta04.aulas.gsyc.urjc.es",
-        "theta05.aulas.gsyc.urjc.es",
-    ]
-
-list_of_users =  ["NachoAz", "Franchoped", "xarlye13", "kasillas77"]
-list_of_groups = ["-1001307082480", "10895420", "340684061", "157533057", "1333192"]
+list_of_users =  ["NachoAz"]
+list_of_groups = ["-1001307082480", "10895420"]
  
 chat_id = bot.get_me().id
 #print("Wai --> ", bot.get_me())
@@ -63,17 +53,23 @@ def command_start(message):
         nombreUsuario = message.from_user.first_name
 
         markup = types.ReplyKeyboardMarkup(row_width=1)
-        itembtn1 = types.KeyboardButton('Comprobar Servicios')
-        itembtn2 = types.KeyboardButton('Comprobar Máquinas')
-        itembtn3 = types.KeyboardButton('Ayuda')
+        itembtn1 = types.KeyboardButton('New Word')
+        itembtn2 = types.KeyboardButton('V12')
+        itembtn3 = types.KeyboardButton('Help')
         markup.add(itembtn1, itembtn2, itembtn3)
 
-        response = "Hola humano (también conocido como {nombre}), soy JdeRo-Bot. Puedes utilizar los siguientes comandos:\n {HELP}"
+        response = "Hola humano (también conocido como {nombre}). Puedes utilizar los siguientes comandos para interactuar conmigo:\n {HELP}"
         bot.send_message(chat_id, response.format(nombre=nombreUsuario, HELP=HELP), reply_markup=markup)
 
     else:
         response = "Permiso denegado."
         bot.send_message(chat_id, response)
+
+
+
+
+
+
 
 
 ### Saludo
@@ -82,6 +78,21 @@ def command_hello(m):
     chat_id = m.chat.id
     audio = open('./img/R2D2_SOUND.mp3', 'rb')
     bot.send_audio(chat_id, audio)
+
+
+
+
+
+### NEW WORD
+@bot.message_handler(commands=['new_word'])
+@bot.message_handler(func=lambda message: message.text == 'New Word')
+def command_services(message):
+    chat_id = message.chat.id
+    response = "**Type**: `/n <english word> <other language meaning>`"
+    bot.send_message(chat_id, response, parse_mode='Markdown')
+
+
+
 
 
 ### SERVICES
@@ -107,15 +118,6 @@ def command_services(message):
                 list_services += "❌ ➡️ `" + site + "`\n"
                 message = list_services
 
-        # Check Daphne:
-        try:
-            ws = create_connection("wss://kibotics.org/_ws_/")
-            ws.send("Monitoring - Are you still alive?")
-            result =  ws.recv()
-            ws.close()
-            list_services += "✅ ➡ `Daphne`\n"
-        except:
-            list_services += "❌ ➡️ `Daphne`\n"
 
         # Send responses to users.
         if len(list_services) != 0:
@@ -128,7 +130,7 @@ def command_services(message):
         bot.send_message(chat_id, response)
 
 
-
+'''
 ### HOSTS
 @bot.message_handler(commands=['hosts'])
 @bot.message_handler(func=lambda message: message.text == 'Comprobar Máquinas')
@@ -154,7 +156,7 @@ def command_hosts(message):
     else:
         response = "Permiso denegado."
         bot.send_message(chat_id, response)
-
+'''
 
 
 
@@ -211,9 +213,9 @@ def listener(messages):
 if __name__ == "__main__":
 
     print("\n\n=================================================================")
-    print("                      JdeRo-BOT (telegram bot)")
+    print("                 Vocabulary Reminder (telegram bot)")
     print("=================================================================\n\n")
 
     bot.set_update_listener(listener) # The listener function is registered.
-    bot.infinity_polling(True)       # The server is listening.
+    bot.infinity_polling(True)        # The server is listening.
 
