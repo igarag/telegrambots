@@ -5,7 +5,10 @@ import telebot, tempfile, subprocess
 from telebot import types
 import time
 import requests
+import pyodbc
+import sqlite3
 
+cnxn = sqlite3.connect('database.db')
 
 
 with open('./token.txt') as token_file:
