@@ -31,8 +31,31 @@ And we can install from `requirements.txt` file typing:
 pip install -r requirements.txt
 ```
 
+### Database (2 ways)
 
-### Database
+### - Option 1: `data.yml`.
+
+Since only words and their translation are stored, the way of using `yml` files for loading and storing data is explored. With the following simple fragment of code, we can store and load the data from `yml` file.
+
+```python
+import yaml
+
+# Store
+yaml_file = open('my_dict.yml', 'w')
+
+dict = {'foo': 'a', 'bar': 'b', 'bam': [1, 2, 3]}
+
+yaml.dump(diccionario, yaml_file, default_flow_style=False)
+yaml_file.close()
+
+# Load
+yaml_file = open('test.yml', 'r')
+yaml.load(yaml_file, Loader=yaml.FullLoader)
+```
+
+
+
+### - Option 2: SQLite using ORM.
 
 The bot will connect to a simple database (`sqlite`) to exchange requests.
 
