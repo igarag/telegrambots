@@ -7,8 +7,10 @@ import time
 import requests
 import pyodbc
 import sqlite3
+import yaml
 
-cnxn = sqlite3.connect('database.db')
+
+#cnxn = sqlite3.connect('database.db')
 
 
 with open('./token.txt') as token_file:
@@ -57,7 +59,7 @@ def command_start(message):
 
         markup = types.ReplyKeyboardMarkup(row_width=1)
         itembtn1 = types.KeyboardButton('New Word')
-        itembtn2 = types.KeyboardButton('V12')
+        itembtn2 = types.KeyboardButton('W12')
         itembtn3 = types.KeyboardButton('Help')
         markup.add(itembtn1, itembtn2, itembtn3)
 
@@ -70,9 +72,41 @@ def command_start(message):
 
 
 
+# ==========================================================================
+
+### STORE IN DATABASE
+def store_word(english_word, meaning):
+
+    print("Store the word: ", english_word, meaning)
+
+    stored = False
+
+    # Load the file
+    yaml_file = open('my_dict.yml', 'r+')
+    my_english_dict = yaml.load(yaml_file, Loader=yaml.FullLoader) or {}
+    new_word = {english_word: meaning}
+    my_english_dict.update(new_word)
+    print("\n\n", my_english_dict, "\n\n")
+
+    # Save
+    print("OK 1")
+    #my_english_dict[english_word] = meaning
+    print("OK 2")
+    yaml.dump(my_english_dict, yaml_file, default_flow_style=False)
+    print("TO BIEN")
+    stored = True
 
 
 
+    yaml_file.close()
+    return stored
+    '''
+    except:
+        print("Error trying to store the word")
+        return 1
+    '''
+
+    
 
 
 ### Saludo
@@ -85,15 +119,57 @@ def command_hello(m):
 
 
 
+### PARSER WORD
+def parser_word(message):
 
-### NEW WORD
+    parser = message.split(" ")
+    success = False
+
+    if len(parser) == 3:
+        header = parser[0]
+        english_word = str(parser[1].lower().strip())
+        meaning = str(parser[2].lower().strip())
+        success = True
+
+    return success, header, english_word, meaning
+
+
+
+
+
+
+
+
+
+
+### NEW WORD BUTTON
 @bot.message_handler(commands=['new_word'])
 @bot.message_handler(func=lambda message: message.text == 'New Word')
-def command_services(message):
+def new_word_docs(message):
+
     chat_id = message.chat.id
-    response = "**Type**: `/n <english word> <other language meaning>`"
+    response = "**Type**: `/n <english word> <your language meaning>`"
     bot.send_message(chat_id, response, parse_mode='Markdown')
 
+    
+    
+
+### NEW WORD FUNCTION
+@bot.message_handler(commands=['n'])
+def command_services(message):
+
+    chat_id = message.chat.id
+    
+    success, header, english_word, meaning = parser_word(message.text)
+
+    if success:
+        # Save the word
+        store_word(english_word, meaning)
+        response = "`Word stored`"
+        bot.send_message(chat_id, response, parse_mode='Markdown')
+    else:
+        response = "`An argument is missing`"
+        bot.send_message(chat_id, response, parse_mode='Markdown')
 
 
 
@@ -218,6 +294,12 @@ if __name__ == "__main__":
     print("\n\n=================================================================")
     print("                 Vocabulary Reminder (telegram bot)")
     print("=================================================================\n\n")
+
+    # Load the data
+
+    
+
+    
 
     bot.set_update_listener(listener) # The listener function is registered.
     bot.infinity_polling(True)        # The server is listening.
