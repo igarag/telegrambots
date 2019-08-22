@@ -76,35 +76,25 @@ def command_start(message):
 
 ### STORE IN DATABASE
 def store_word(english_word, meaning):
-
     print("Store the word: ", english_word, meaning)
 
     stored = False
 
     # Load the file
-    yaml_file = open('my_dict.yml', 'r+')
-    my_english_dict = yaml.load(yaml_file, Loader=yaml.FullLoader) or {}
-    new_word = {english_word: meaning}
-    my_english_dict.update(new_word)
-    print("\n\n", my_english_dict, "\n\n")
-
-    # Save
-    print("OK 1")
-    #my_english_dict[english_word] = meaning
-    print("OK 2")
-    yaml.dump(my_english_dict, yaml_file, default_flow_style=False)
-    print("TO BIEN")
-    stored = True
-
-
-
+    with open('my_dict.yml', 'r') as yaml_file:
+        my_english_dict = yaml.safe_load(yaml_file) or {}
+        my_english_dict[english_word] = meaning
+    if my_english_dict:
+        with open('my_dict.yml', 'w') as yaml_file:
+            yaml.dump(my_english_dict, yaml_file, default_flow_style=False)
+            
+    
     yaml_file.close()
-    return stored
-    '''
-    except:
-        print("Error trying to store the word")
-        return 1
-    '''
+    
+    print("TO BIEN")
+
+
+    
 
     
 
