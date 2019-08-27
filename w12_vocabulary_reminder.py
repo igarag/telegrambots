@@ -72,6 +72,21 @@ def command_start(message):
 
 
 
+
+### Saludo
+@bot.message_handler(commands=['list', 'l'])
+def command_list(m):
+
+    chat_id = m.chat.id
+    
+    list_words = get_words()
+
+    print("\n\nMy dict is:", list_words, "\n\n")
+
+    bot.send_message(chat_id, str(list_words), parse_mode='Markdown')
+
+
+
 # ==========================================================================
 
 ### STORE IN DATABASE
@@ -80,23 +95,35 @@ def store_word(english_word, meaning):
 
     stored = False
 
-    # Load the file
     with open('my_dict.yml', 'r') as yaml_file:
         my_english_dict = yaml.safe_load(yaml_file) or {}
         my_english_dict[english_word] = meaning
     if my_english_dict:
         with open('my_dict.yml', 'w') as yaml_file:
             yaml.dump(my_english_dict, yaml_file, default_flow_style=False)
-            
-    
+            stored = True
     yaml_file.close()
     
     print("TO BIEN")
 
+    return stored
 
-    
 
-    
+### LOAD ALL THE WORDS FROM THE YML FILE
+def get_words():
+
+    with open('my_dict.yml', 'r') as yaml_file:
+        my_english_dict = yaml.safe_load(yaml_file) or {}
+    yaml_file.close()
+
+    return my_english_dict
+
+
+
+
+
+
+
 
 
 ### Saludo
