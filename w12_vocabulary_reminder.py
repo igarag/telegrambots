@@ -78,16 +78,14 @@ def command_start(message):
 def print_dictionary(m):
 
     chat_id = m.chat.id
-    
-    list_words = get_words()
 
-    diccionario = ""
+    list_words = get_words()
+    my_dict = ""
     for key,val in list_words.items():
-        diccionario += "`" + key + "`" +  ": " + val + "\n"
+        my_dict += "`" + key + "`" +  ": " + val + "\n"
         print(key, "=>", val)
 
-
-    bot.send_message(chat_id, str(diccionario), parse_mode='Markdown')
+    bot.send_message(chat_id, str(my_dict), parse_mode='Markdown')
 
 
 
