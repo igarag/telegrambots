@@ -4,3 +4,5 @@ log.txt
 info.log
 test.db
 *.yml
+
+.env
