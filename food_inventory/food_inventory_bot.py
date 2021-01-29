@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 import telebot, tempfile, subprocess
 from telebot import types
@@ -12,8 +11,13 @@ env = Env()
 env.read_env()
 
 token = env.str("TOKEN", "")
-
 bot = telebot.TeleBot(token)
+
+# Load Inventory
+inventory_file = "./inventory.json"
+with open(inventory_file, 'r') as inventory:
+    raw_inventory = inventory.read()
+inventory = json.loads(raw_inventory)
 
 HELP = '\n/help - Guide to know how to use the bot   \
         \n/new_word - Add a new word to your database.\
@@ -23,12 +27,12 @@ HELP = '\n/help - Guide to know how to use the bot   \
 
 GROUP = "ADMIN"
 
-list_of_users =  ["NachoAz"]
+list_of_users = ["NachoAz"]
 list_of_groups = env.list("GROUPS", "")
- 
+
 chat_id = bot.get_me().id
-#print("Wai --> ", bot.get_me())
-############################################ 
+# print("Wai --> ", bot.get_me())
+############################################
 
 # Checks if the user belongs to the list
 def check_user(user):
@@ -36,17 +40,17 @@ def check_user(user):
         return True
     return False
 
+def update_inventory(item: str, value: int):
+    print(inventory)
+    inventory[item] = value
+    with open(inventory_file, 'w') as outfile:
+        json.dump(inventory, outfile)
+
 
 def check_group(group):
     if group in list_of_groups:
         return True
     return False
-
-
-@bot.message_handler(commands=["chat_id"])
-def chat_id(message):
-    chat_id = message.chat.id
-    bot.send_message(chat_id, chat_id)
 
 
 @bot.message_handler(commands=["start"])
@@ -63,8 +67,12 @@ def command_start(message):
         itembtn4 = types.KeyboardButton('Borrar')
         markup.add(itembtn1, itembtn2, itembtn3, itembtn4)
 
-        response = "Hola humano (también conocido como {nombre}). Puedes utilizar los siguientes comandos para interactuar conmigo:\n {HELP}"
-        bot.send_message(chat_id, response.format(nombre=username, HELP=HELP), reply_markup=markup)
+        response = "Hola humano (también conocido como {nombre}). \
+                    Puedes utilizar los siguientes comandos para interactuar \
+                    conmigo:\n {HELP}"
+        bot.send_message(chat_id,
+                         response.format(nombre=username, HELP=HELP),
+                         reply_markup=markup)
 
     else:
         response = "Permiso denegado."
@@ -80,31 +88,44 @@ def command_hello(m):
 
 @bot.message_handler(commands=['inventory'])
 @bot.message_handler(func=lambda message: message.text == 'Inventario')
-def inventory(message):
+def show_inventory(message):
     chat_id = message.chat.id
 
-    with open('inventory.json', 'r') as inventory:
-        raw_inventory = inventory.read()
-
-    data = json.loads(raw_inventory)
     response = ""
-    for element, value in data.items():
+    for element, value in inventory.items():
         response += f"- {element}: {value} \n"
     bot.send_message(chat_id, response, parse_mode='Markdown')
 
 
 @bot.message_handler(commands=['add'])
-@bot.message_handler(func=lambda message: message.text == 'Añadir')
+@bot.message_handler(func=lambda message: "add" in message.text)
 def add(message):
     chat_id = message.chat.id
-    response = "Add element"
+
+    raw_content = message.text.split(" ")
+    command = str(raw_content[0])
+    item = str(raw_content[1])
+    value = int(raw_content[2])
+    print(f"{command} - {item} - {value}")
+
+    update_inventory(item, value)
+    response = f"Elemento {item} - {value} añadido al inventario"
     bot.send_message(chat_id, response, parse_mode='Markdown')
 
+
 @bot.message_handler(commands=['edit'])
-@bot.message_handler(func=lambda message: message.text=='Editar')
+@bot.message_handler(func=lambda message: "edit" in message.text)
 def edit(message):
     chat_id = message.chat.id
-    response = "Edit element"
+    
+    raw_content = message.text.split(" ")
+    command = str(raw_content[0])
+    item = str(raw_content[1])
+    value = int(raw_content[2])
+    print(f"{command} - {item} - {value}")
+
+    update_inventory(item, value)
+    response = f"Elemento {item} editado. Ahora tiene {value} unidades"
     bot.send_message(chat_id, response, parse_mode='Markdown')
 
 
@@ -115,7 +136,7 @@ def delete(message):
     response = "Delete element"
     bot.send_message(chat_id, response, parse_mode='Markdown')
 
-### SERVICES
+
 @bot.message_handler(commands=['services'])
 @bot.message_handler(func=lambda message: message.text == 'Comprobar Servicios')
 def command_services(message):
@@ -138,8 +159,6 @@ def command_services(message):
                 list_services += "❌ ➡️ `" + site + "`\n"
                 message = list_services
 
-
-        # Send responses to users.
         if len(list_services) != 0:
             bot.send_message(chat_id, list_services,  parse_mode='Markdown')
         else:
@@ -181,7 +200,7 @@ def callbacks(call):
     elif call.data == "help":
         query_text (call.message)
     elif call.data == "hosts":
-        command_hosts(call.message)      
+        command_hosts(call.message)
     else:
         response = "Error."
         bot.send_message(chat_id, response)
@@ -191,7 +210,7 @@ def callbacks(call):
 def listener(messages):
 
     for m in messages:
-        chat_id = m.chat.id 
+        chat_id = m.chat.id
         mensaje = "[" + str(m.from_user.id) + "-" + str(m.chat.first_name) + "]: " + m.text 
         f = open( 'log.txt', 'a')
         f.write(mensaje + "\n")
