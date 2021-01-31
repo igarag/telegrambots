@@ -1,6 +1,0 @@
-pyTelegramBotAPI==3.6.6
-pyyaml
-
-# If this packafe fails: install sudo apt-get install unixodbc unixodbc-dev
-#pyodbc
-#python-sqlite-orm
