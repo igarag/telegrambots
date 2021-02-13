@@ -8,3 +8,5 @@ test.db
 .env
 *.json
 .ipynb
+
+food_inventory/Untitled.ipynb
