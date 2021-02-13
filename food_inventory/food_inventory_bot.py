@@ -34,7 +34,7 @@ commands = {
 
 list_of_users = env.list("AVAILABLE_USERS")
 list_of_groups = env.list("AVAILABLE_GROUPS")
-
+print(bot.get_me())
 chat_id = bot.get_me().id
 # print("Wai --> ", bot.get_me())
 ############################################
